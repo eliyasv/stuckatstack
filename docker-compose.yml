@@ -1,0 +1,44 @@
+# Docker Compose for Local Development use- docker compose up app
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder  # Use builder for development
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount source code for hot reload (live file sync),/app/node_modules prevents host node_modules from overriding container ones, mounts persistent data folder
+      - .:/app
+      - /app/node_modules
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+    command: npm run dev -- -H 0.0.0.0
+
+  # For production-like local testing use- docker compose up app-prod or docker compose --profile production up (Smaller image, optimised, no dev dependencies) change port-binding if conflict occure
+
+  app-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - app_data:/app/data
+    env_file:
+      - .env.production
+
+    profiles:
+      - production
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  app_data:

@@ -1,0 +1,36 @@
+{
+  "name": "stuckatstack",
+  "version": "1.0.0",
+  "description": "Intelligent tech stack recommendation tool for founders and developers",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:init": "ts-node --compilerOptions '{\"module\":\"commonjs\"}' src/lib/db/init.ts"
+  },
+  "keywords": [
+    "tech-stack",
+    "recommendation",
+    "startup"
+  ],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "better-sqlite3": "^12.6.2",
+    "next": "^14.2.35",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^25.3.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "autoprefixer": "^10.4.24",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^5.9.3"
+  }
+}

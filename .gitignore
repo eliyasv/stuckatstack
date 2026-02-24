@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Next telemetry cache
+.next/cache
+
+# Environment files (secrets)
+.env*
+!.env.example
+.env.production
+
+# Logs
+*.log
+
+# SQLite runtime data
+data/*.db
+data/*.db-journal
+data/*.db-wal
+data/*.db-shm
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/
+
+# TypeScript cache
+*.tsbuildinfo
