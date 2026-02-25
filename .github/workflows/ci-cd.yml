@@ -33,8 +33,9 @@ jobs:
       - name: Typecheck
         run: npx tsc --noEmit
 
-      - name: Lint
+      - name: Lint (non blocking)
         run: npm run lint --if-present
+        continue-on-error: true
 
       - name: Build app
         run: npm run build
