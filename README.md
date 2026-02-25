@@ -3,6 +3,7 @@
 A recommendation web application built with Next.js (App Router), TypeScript, and SQLite, designed with production-ready Docker architecture and a full CI/CD pipeline using GitHub Actions.
 
 This project demonstrates end-to-end engineering practices including reproducible builds, containerisation, security scanning, and automated image publishing.
+
 ---
 
 ### App features
@@ -42,7 +43,6 @@ docker compose up app
 # Open
 http://localhost:3000
 ```
-Dev Image ~840MB
 
 ### Production-like Local Run
 
@@ -55,10 +55,29 @@ docker compose up app-prod or docker compose --profile production up
 # Open (change portbinding to 3001:3000 in docker-compose.yml if running both env to avoid conflicts)
 http://localhost:3000
 ```
-Production Image ~222MB
----
 
-## What's Inside
+###  From GHCR
+
+```bash
+# Pull the image locally
+docker pull ghcr.io/eliyasv/stuckatstack:latest
+
+# Run the image
+docker run -p 3000:3000 ghcr.io/eliyasv/stuckatstack:latest
+
+# Open
+http://localhost:3000
+```
+```bash
+docker images | grep stuckatstack
+
+# Production image
+ghcr.io/eliyasv/stuckatstack:latest   5870d6870e0d        222MB             0B   U    
+stuckatstack-app-prod:latest          4818e817e586        222MB             0B        
+
+# Local Development image
+stuckatstack-app:latest               3d83607d4a5d       1.23GB             0B   
+```
 ---
 
 ## Project Structure
@@ -76,10 +95,10 @@ stuckatstack/
 ├── Dockerfile             # Multi-stage build
 ├── docker-compose.yml     # Local development
 ├── .dockerignore          # Build context exclusions
-├── .gitignore
-
-└── package.json
-```
+├── .gitignore             # Files Git should ignore
+├── .eslintrc.json         # ESLint configuration
+└── package.json           # Project metadata, scripts, deps
+``` 
 
 ---
 
