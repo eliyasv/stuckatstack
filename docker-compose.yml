@@ -9,7 +9,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      # Mount source code for hot reload (live file sync),/app/node_modules prevents host node_modules from overriding container ones, mounts persistent data folder
+      # Mount source code for hot reload (live file sync),/app/node_modules prevents host node_modules from overriding container ones, mounts persistent data folder(bind mount)
       - .:/app
       - /app/node_modules
       - ./data:/app/data
