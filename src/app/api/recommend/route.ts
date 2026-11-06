@@ -1,42 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDecisionEngine } from '@/lib/decision-engine/DecisionEngine';
 import { QuestionnaireAnswers, StackRecommendation } from '@/types';
+import { z } from 'zod';
+
+const questionnaireSchema: z.ZodType<QuestionnaireAnswers> = z.strictObject({
+  appType: z.enum(['saas', 'marketplace', 'ai-app', 'social-app', 'internal-tool']),
+  expectedUsers: z.enum(['0-1k', '1k-10k', '10k-100k', '100k+']),
+  realTimeFeatures: z.boolean(),
+  budget: z.enum(['low', 'medium', 'high']),
+  teamSize: z.enum(['solo', 'small-team', 'funded-team']),
+  aiIntegration: z.boolean(),
+  compliance: z.enum(['none', 'gdpr', 'hipaa']),
+  timeToMarket: z.enum(['fast', 'balanced', 'long-term']),
+});
 
 export async function POST(request: NextRequest) {
+  let body: unknown;
   try {
-    const body = await request.json();
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { error: 'Request body must be valid JSON' },
+      { status: 400 }
+    );
+  }
 
-    // Validate required fields
-    const requiredFields: (keyof QuestionnaireAnswers)[] = [
-      'appType',
-      'expectedUsers',
-      'realTimeFeatures',
-      'budget',
-      'teamSize',
-      'aiIntegration',
-      'compliance',
-      'timeToMarket',
-    ];
-
-    for (const field of requiredFields) {
-      if (body[field] === undefined) {
-        return NextResponse.json(
-          { error: `Missing required field: ${field}` },
-          { status: 400 }
-        );
-      }
+  try {
+    const parsed = questionnaireSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          error: 'Invalid questionnaire answers',
+          issues: parsed.error.issues.map(({ path, message }) => ({ path, message })),
+        },
+        { status: 400 }
+      );
     }
 
-    const answers: QuestionnaireAnswers = {
-      appType: body.appType,
-      expectedUsers: body.expectedUsers,
-      realTimeFeatures: Boolean(body.realTimeFeatures),
-      budget: body.budget,
-      teamSize: body.teamSize,
-      aiIntegration: Boolean(body.aiIntegration),
-      compliance: body.compliance,
-      timeToMarket: body.timeToMarket,
-    };
+    const answers = parsed.data;
 
     // Get recommendation from decision engine (fast, no I/O)
     const engine = getDecisionEngine();

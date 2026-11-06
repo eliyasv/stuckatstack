@@ -3,11 +3,14 @@
   "version": "1.0.0",
   "description": "Intelligent tech stack recommendation tool for founders and developers",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
     "start": "next start",
-    "lint": "next lint",
-    "db:init": "ts-node --compilerOptions '{\"module\":\"commonjs\"}' src/lib/db/init.ts"
+    "lint": "eslint . --max-warnings=0",
+    "test": "node --test tests/*.test.mjs",
+    "test:production": "TEST_SERVER_MODE=production node --test tests/*.test.mjs",
+    "typecheck": "next typegen && tsc --noEmit",
+    "db:init": "tsx src/lib/db/init.ts"
   },
   "keywords": [
     "tech-stack",
@@ -17,22 +20,27 @@
   "author": "",
   "license": "MIT",
   "type": "commonjs",
+  "engines": {
+    "node": "^24.0.0"
+  },
   "dependencies": {
     "better-sqlite3": "^12.6.2",
-    "next": "^14.2.35",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "next": "16.4.5",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
-    "@types/node": "^25.3.0",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
+    "@types/node": "24.19.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
     "autoprefixer": "^10.4.24",
-    "eslint": "^8.57.1",
-    "eslint-config-next": "^14.2.35",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.5",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.19",
+    "tsx": "4.23.15",
     "typescript": "^5.9.3"
   }
 }

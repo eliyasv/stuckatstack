@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { useEffect, useState, Suspense } from 'react';
 import { StackRecommendation, QuestionnaireAnswers } from '@/types';
 
@@ -82,7 +83,7 @@ function ResultsContent() {
       <div className="container mx-auto px-4 max-w-6xl">
         {/* Header */}
         <div className="text-center mb-8">
-          <a href="/" className="text-primary-600 hover:text-primary-700 mb-4 inline-block">← Back to Home</a>
+          <Link href="/" className="text-primary-600 hover:text-primary-700 mb-4 inline-block">← Back to Home</Link>
           <h1 className="text-3xl font-bold text-gray-900">Your Tech Stack Recommendation</h1>
         </div>
 
