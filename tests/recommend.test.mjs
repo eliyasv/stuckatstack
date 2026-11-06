@@ -97,6 +97,13 @@ async function recommend(body) {
   });
 }
 
+test('health endpoint returns an uncached liveness response', async () => {
+  const response = await fetch(`${baseUrl}/api/health`, { signal: AbortSignal.timeout(10_000) });
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { status: 'ok' });
+  assert.equal(response.headers.get('cache-control'), 'no-store');
+});
+
 test('valid answers keep literal booleans and return the recommendation contract', async () => {
   const response = await recommend(validAnswers);
   assert.equal(response.status, 200);

@@ -29,6 +29,26 @@ The existing result page's mount-only storage hydration has a documented,
 file-scoped exception to the new `set-state-in-effect` rule; result-loading
 and recovery improvements are not part of this dependency migration.
 
+## Container health
+
+`GET /api/health` returns HTTP 200 with `{"status":"ok"}` and `Cache-Control:
+no-store`. This is a liveness check only: it performs no database reads/writes
+and does not establish readiness of SQLite or external dependencies.
+
+The production image runs `node scripts/healthcheck.cjs`. The probe uses the
+configured `PORT` (default 3000), exits successfully only on HTTP 200, rejects
+redirects, and times out after three seconds. Docker allows five seconds for
+the probe, a 30-second startup grace period, and three consecutive failures.
+Compose production inherits this image check rather than overriding it.
+An unhealthy status alone does not make Docker restart a running container.
+
+The endpoint integration tests cover health responses in development and
+production. To inspect a running container's probe results:
+
+```sh
+docker inspect --format '{{json .State.Health}}' <container-name>
+```
+
 ## Branching strategy
 
 Use a lightweight, main-based workflow rather than a long-lived develop branch:
