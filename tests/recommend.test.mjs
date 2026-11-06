@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
 const root = fileURLToPath(new URL('../', import.meta.url));
+const production = process.env.TEST_SERVER_MODE === 'production';
 const validAnswers = {
   appType: 'saas',
   expectedUsers: '0-1k',
@@ -30,10 +31,15 @@ let output = '';
 before(async () => {
   // Isolate Next's build cache and SQLite writes from the working tree.
   directory = await mkdtemp(path.join(process.env.TMPDIR || tmpdir(), 'stuckatstack-test-'));
-  for (const entry of ['src', 'package.json', 'next.config.js', 'tsconfig.json', 'next-env.d.ts', 'postcss.config.js', 'tailwind.config.js']) {
-    await cp(path.join(root, entry), path.join(directory, entry), { recursive: true });
+  if (production) {
+    await cp(path.join(root, '.next/standalone'), directory, { recursive: true });
+    await cp(path.join(root, '.next/static'), path.join(directory, '.next/static'), { recursive: true });
+  } else {
+    for (const entry of ['src', 'package.json', 'next.config.js', 'tsconfig.json', 'next-env.d.ts', 'postcss.config.js', 'tailwind.config.js']) {
+      await cp(path.join(root, entry), path.join(directory, entry), { recursive: true });
+    }
+    await symlink(path.join(root, 'node_modules'), path.join(directory, 'node_modules'), 'dir');
   }
-  await symlink(path.join(root, 'node_modules'), path.join(directory, 'node_modules'), 'dir');
 
   const listener = createServer();
   listener.listen(0, '127.0.0.1');
@@ -41,9 +47,18 @@ before(async () => {
   const port = listener.address().port;
   await new Promise((resolve, reject) => listener.close(error => error ? reject(error) : resolve()));
   baseUrl = `http://127.0.0.1:${port}`;
-  server = spawn(process.execPath, [require.resolve('next/dist/bin/next'), 'dev', '--hostname', '127.0.0.1', '--port', String(port)], {
+  const args = production
+    ? [path.join(directory, 'server.js')]
+    : [require.resolve('next/dist/bin/next'), 'dev', '--webpack', '--hostname', '127.0.0.1', '--port', String(port)];
+  server = spawn(process.execPath, args, {
     cwd: directory,
-    env: { ...process.env, NODE_ENV: 'development', NEXT_TELEMETRY_DISABLED: '1' },
+    env: {
+      ...process.env,
+      NODE_ENV: production ? 'production' : 'development',
+      NEXT_TELEMETRY_DISABLED: '1',
+      HOSTNAME: '127.0.0.1',
+      PORT: String(port),
+    },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   server.stdout.on('data', chunk => { output += chunk; });

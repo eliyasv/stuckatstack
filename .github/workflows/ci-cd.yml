@@ -24,21 +24,26 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
       - name: Typecheck
-        run: npx tsc --noEmit
+        run: npm run typecheck
 
-      - name: Lint (non blocking)
-        run: npm run lint --if-present
-        continue-on-error: true
+      - name: Lint
+        run: npm run lint
+
+      - name: Test recommendation endpoint
+        run: npm test
 
       - name: Build app
         run: npm run build
+
+      - name: Test production standalone server
+        run: npm run test:production
   
   # Job 2: Security Scan
   security:
@@ -49,8 +54,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Dependency audit
-        run: npm audit --audit-level=moderate || true
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Dependency audit (block high and critical findings)
+        run: npm audit --audit-level=high
 
       - name: Trivy vulnerability scan (filesystem)
         uses: aquasecurity/trivy-action@0.24.0
@@ -59,6 +69,8 @@ jobs:
           scan-ref: .
           format: table
           ignore-unfixed: true
+          severity: HIGH,CRITICAL
+          exit-code: '1'
 
   # Job 3: Build & Push Docker Image
   docker:

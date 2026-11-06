@@ -1,5 +1,5 @@
 # Base
-FROM node:20-slim AS base
+FROM node:24-slim AS base
 
 WORKDIR /app
 

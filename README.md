@@ -96,7 +96,7 @@ stuckatstack/
 ├── docker-compose.yml     # Local development
 ├── .dockerignore          # Build context exclusions
 ├── .gitignore             # Files Git should ignore
-├── .eslintrc.json         # ESLint configuration
+├── eslint.config.mjs      # ESLint flat configuration
 └── package.json           # Project metadata, scripts, deps
 ``` 
 
@@ -133,7 +133,8 @@ stuckatstack/
 
 ### Application
 
-* Frontend - Next.js 14 (App Router) + TypeScript 
+* Frontend - Next.js 16 (App Router) + React 19 + TypeScript
+* Runtime - Node.js 24 (local, CI, and Docker)
 * Styling - TailwindCSS 
 * Backend - Next.js API Routes 
 * Database - SQLite (better-sqlite3) 
@@ -166,12 +167,14 @@ stuckatstack/
 - The GitHub Actions pipeline validates every change by:
 - Installing dependencies (npm ci)
 - Type checking (tsc)
-- Linting (if present)
+- Blocking lint checks
+- Recommendation endpoint integration tests
 - Building the Next.js production build
+- Testing the built standalone server against the same endpoint contract
 - Running dependency security audit
 - Running Trivy security scan
 
-This ensures the repository is reproducible and safe.
+These checks help catch regressions and known dependency risks; they are not a guarantee of security.
 
 #### Container Publishing (GHCR)
 
@@ -188,8 +191,11 @@ This enables immutable deployment workflows.
 #### Security
 
 - Security is integrated into CI via:
-  * npm audit
-  * Trivy filesystem scan
+  * npm audit (blocks high/critical dependency findings)
+  * Trivy filesystem scan (blocks fixable high/critical findings)
+
+The built container image is not yet scanned. See [CONTRIBUTING.md](CONTRIBUTING.md)
+for local checks, known development-tool advisories, and the branch/PR workflow.
 
 This models a DevSecOps-style pipeline.
 
@@ -213,7 +219,8 @@ Key decisions:
 - GitHub actions for CI 
 - GHCR for registry integration with GitHub
 - CI security scanning
-- Lint included but initially non-blocking.
+- Lint, endpoint tests, and high/critical dependency checks block CI.
+- Webpack retained explicitly during the Next.js migration.
 
 ---
 

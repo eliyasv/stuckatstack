@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { QuestionnaireAnswers } from '@/types';
 
 const initialAnswers: QuestionnaireAnswers = {
@@ -196,7 +197,7 @@ export default function QuestionnairePage() {
 
 function LinkBack() {
   return (
-    <a
+    <Link
       href="/"
       className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors"
     >
@@ -204,7 +205,7 @@ function LinkBack() {
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
       </svg>
       Back to Home
-    </a>
+    </Link>
   );
 }
 
