@@ -40,6 +40,7 @@ ENV HOSTNAME="0.0.0.0"
 # Copy only necessary files from previous stages
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/scripts/healthcheck.cjs ./scripts/healthcheck.cjs
 
 # Create data directory with correct permissions
 RUN mkdir -p /app/data && chown -R nextjs:nodejs /app/data
@@ -50,9 +51,9 @@ USER nextjs
 # Expose port
 EXPOSE 3000
 
-# Health check - periodically checksif API alive. If fails → container marked unhealthy.
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/recommend || exit 1
+# Liveness only: no database writes or external dependency checks.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD ["node", "scripts/healthcheck.cjs"]
 
 # tini becomes PID 1, then runs the command
 ENTRYPOINT ["tini", "--"]
